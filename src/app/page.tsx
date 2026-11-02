@@ -8,10 +8,15 @@ import {
   TrendingDown, 
   Megaphone, 
   ShoppingBag, 
-  CheckCircle2, 
   Sparkles,
-  Minus
+  ShoppingBasket
 } from "lucide-react";
+
+// বাংলা ডিজিটে কনভার্ট করার হেলপার ফাংশন
+function toBanglaDigit(num: number | string): string {
+  const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return num.toString().replace(/\d/g, (digit) => banglaDigits[parseInt(digit)]);
+}
 
 interface Product {
   id: string;
@@ -41,7 +46,6 @@ export default function HomePage() {
         if (data.status || data.success) {
           setProducts(data.data || data.products || []);
         } else {
-          // Fallback mock data matching API contract
           setProducts(getFallbackProducts());
         }
       } catch (err) {
@@ -69,36 +73,52 @@ export default function HomePage() {
   });
 
   return (
-    <div className="space-y-10 pb-12">
-      {/* 1. Ticker / Marquee Notice */}
-      <div className="bg-amber-500 text-slate-900 rounded-xl px-4 py-2.5 flex items-center gap-3 overflow-hidden shadow-sm font-medium">
-        <div className="flex items-center gap-1.5 bg-slate-900 text-amber-400 text-xs font-bold px-2.5 py-1 rounded-md shrink-0 uppercase tracking-wider">
+    <div className="space-y-10 pb-12 font-sans">
+      
+      {/* 1. Price Ticker (Infinite Marquee) */}
+      <div className="bg-amber-400 text-slate-900 rounded-2xl px-4 py-2.5 flex items-center gap-3 overflow-hidden shadow-sm font-medium">
+        <div className="flex items-center gap-1.5 bg-slate-900 text-amber-400 text-xs font-extrabold px-3 py-1 rounded-lg shrink-0 uppercase tracking-wider">
           <Megaphone className="w-3.5 h-3.5" />
-          <span>লাইভ টিঙ্কার</span>
+          <span>লাইভ বাজার দর</span>
         </div>
         <div className="overflow-hidden whitespace-nowrap w-full">
-          <div className="inline-block animate-marquee text-sm font-semibold">
-            📢 আজকের বাজার দর: পেঁয়াজ ও রসুনের দাম ঊর্ধ্বমুখী ▲ • মসুর ডাল ও আলুর দাম নিম্নমুখী ▼ • সঠিক দর জেনে কেনাকাটা করুন!
+          <div className="inline-block animate-marquee text-sm font-bold space-x-6">
+            {products.map((item) => (
+              <span key={item.id} className="inline-flex items-center gap-1.5 mx-3">
+                <span>{item.image || "📦"}</span>
+                <span>{item.name}:</span>
+                <span className="font-extrabold">{toBanglaDigit(item.price)} টাকা/{item.unit}</span>
+                {item.change === "up" && (
+                  <span className="text-red-700 font-bold">▲ {toBanglaDigit(item.changePercent)}%</span>
+                )}
+                {item.change === "down" && (
+                  <span className="text-emerald-800 font-bold">▼ {toBanglaDigit(item.changePercent)}%</span>
+                )}
+                {item.change === "none" && (
+                  <span className="text-slate-600 font-medium">— ০.০%</span>
+                )}
+              </span>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* 2. Hero Section */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-900 via-emerald-800 to-slate-900 text-white p-8 sm:p-12 shadow-xl border border-emerald-700/30">
-        <div className="relative z-10 max-w-2xl space-y-4">
-          <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5" /> বাজার দর ট্র্যাকার
+      {/* 2. Figma Hero / Banner */}
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white p-8 sm:p-14 shadow-2xl border border-emerald-800/40">
+        <div className="relative z-10 max-w-2xl space-y-5">
+          <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3.5 py-1 rounded-full text-xs font-bold tracking-wide">
+            <Sparkles className="w-3.5 h-3.5" /> নির্ভরযোগ্য প্রতিদিনের বাজার দর
           </span>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
             সঠিক বাজার দর জানুন, <br />
             <span className="text-emerald-400">স্মার্ট বাজেটে কেনাকাটা করুন!</span>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            বাংলাদেশের স্থানীয় নিত্যপ্রয়োজনীয় পণ্যের প্রতিদিনের হালনাগাদ দরদাম ও ট্রেন্ড দেখুন এক ক্লিকে।
+            বাংলাদেশের স্থানীয় নিত্যপ্রয়োজনীয় পণ্যের প্রতিদিনের হালনাগাদ দরদাম ও ট্রেন্ড পর্যবেক্ষণ করুন একদম সহজে।
           </p>
           <a
             href="#সব-পণ্য"
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg text-sm mt-2"
+            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-7 py-3.5 rounded-2xl transition shadow-lg shadow-emerald-900/50 text-sm mt-2"
           >
             <ShoppingBag className="w-4 h-4" /> সব পণ্য দেখুন
           </a>
@@ -106,17 +126,23 @@ export default function HomePage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500 font-semibold animate-pulse">
-          বাজার দর লোড হচ্ছে...
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div key={n} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm animate-pulse space-y-4">
+              <div className="h-8 bg-slate-200 rounded-lg w-1/3"></div>
+              <div className="h-6 bg-slate-200 rounded-lg w-2/3"></div>
+              <div className="h-10 bg-slate-200 rounded-lg w-1/2"></div>
+            </div>
+          ))}
         </div>
       ) : (
         <>
           {/* Section A — আজ দাম বেড়েছে ▲ */}
           {topRisers.length > 0 && (
             <section className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-red-100 pb-2">
+              <div className="flex items-center gap-2 border-b border-red-100 pb-3">
                 <TrendingUp className="w-6 h-6 text-red-600" />
-                <h2 className="text-2xl font-black text-slate-800">আজ দাম বেড়েছে ▲</h2>
+                <h2 className="text-2xl font-black text-slate-900">আজ দাম বেড়েছে ▲</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topRisers.map((p) => (
@@ -129,9 +155,9 @@ export default function HomePage() {
           {/* Section B — আজ দাম কমেছে ▼ */}
           {topFallers.length > 0 && (
             <section className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-emerald-100 pb-2">
+              <div className="flex items-center gap-2 border-b border-emerald-100 pb-3">
                 <TrendingDown className="w-6 h-6 text-emerald-600" />
-                <h2 className="text-2xl font-black text-slate-800">আজ দাম কমেছে ▼</h2>
+                <h2 className="text-2xl font-black text-slate-900">আজ দাম কমেছে ▼</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topFallers.map((p) => (
@@ -142,7 +168,7 @@ export default function HomePage() {
           )}
 
           {/* Section C — সব পণ্য */}
-          <section id="সব-পণ্য" className="scroll-mt-6 space-y-6">
+          <section id="সব-পণ্য" className="scroll-mt-8 space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-bold uppercase text-slate-400 tracking-wider mr-1">ক্যাটাগরি:</span>
@@ -150,9 +176,9 @@ export default function HomePage() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition ${
                       selectedCategory === cat
-                        ? "bg-emerald-700 text-white shadow-md"
+                        ? "bg-emerald-700 text-white shadow-md shadow-emerald-700/20"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -161,13 +187,13 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Sorting Challenge C1 */}
+              {/* Challenge C1: Sort Control */}
               <div className="flex items-center gap-2 w-full md:w-auto">
                 <ArrowUpDown className="w-4 h-4 text-emerald-700 shrink-0" />
                 <select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value as "default" | "low-to-high" | "high-to-low")}
-                  className="w-full md:w-auto bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full md:w-auto bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="default">সাজান: ডিফল্ট</option>
                   <option value="low-to-high">দাম: কম থেকে বেশি</option>
@@ -184,47 +210,66 @@ export default function HomePage() {
           </section>
         </>
       )}
+
+      {/* Footer (Matching Figma Requirement 7) */}
+      <footer className="border-t border-slate-200 pt-8 mt-16 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+        <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
+          <ShoppingBasket className="w-5 h-5 text-emerald-600" />
+          <span>বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।</span>
+        </div>
+        <p className="text-center sm:text-right text-slate-400">
+          * সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
+        </p>
+      </footer>
+
     </div>
   );
 }
 
 function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-xl hover:border-emerald-200 transition flex flex-col justify-between">
+    <div className="group bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-center mb-3">
-          <span className="text-2xl p-2 bg-slate-50 rounded-xl border border-slate-100">
+          <span className="text-3xl p-2.5 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
             {product.image || "📦"}
           </span>
           {product.change === "up" && (
-            <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
-              ▲ {product.changePercent}%
+            <span className="text-xs font-black text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full shadow-sm">
+              ▲ {toBanglaDigit(product.changePercent)}%
             </span>
           )}
           {product.change === "down" && (
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-              ▼ {product.changePercent}%
+            <span className="text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-sm">
+              ▼ {toBanglaDigit(product.changePercent)}%
             </span>
           )}
           {product.change === "none" && (
-            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
-              — 0.0%
+            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+              — ০.০%
             </span>
           )}
         </div>
-        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md">
+
+        <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md">
           {product.category}
         </span>
-        <h3 className="font-bold text-lg text-slate-800 mt-2">{product.name}</h3>
-        <p className="text-xs text-slate-500 mt-1">প্রতি {product.unit}</p>
-        <div className="my-3 flex items-baseline gap-1">
-          <span className="text-xs text-slate-400">আজকের দাম:</span>
-          <span className="text-2xl font-black text-slate-900">৳{product.price}</span>
+
+        <h3 className="font-extrabold text-lg text-slate-900 mt-2 group-hover:text-emerald-700 transition">
+          {product.name}
+        </h3>
+        
+        <p className="text-xs font-semibold text-slate-400 mt-1">প্রতি {product.unit}</p>
+
+        <div className="my-4 flex items-baseline gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+          <span className="text-xs font-bold text-slate-500">আজকের দাম:</span>
+          <span className="text-2xl font-black text-slate-900">{toBanglaDigit(product.price)} টাকা</span>
         </div>
       </div>
+
       <Link
         href={`/product/${product.slug || product.id}`}
-        className="mt-2 w-full bg-slate-900 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-center text-sm block"
+        className="w-full bg-slate-900 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition text-center text-sm block shadow-sm"
       >
         বিস্তারিত দেখুন
       </Link>
@@ -234,11 +279,11 @@ function ProductCard({ product }: { product: Product }) {
 
 function getFallbackProducts(): Product[] {
   return [
-    { id: "1", slug: "nazirshail-rice", name: "নাজিরশাইল চাল", category: "চাল", price: 75, unit: "কেজি", change: "up", changeAmount: 2, changePercent: 2.7, image: "🌾" },
-    { id: "2", slug: "lentils", name: "মসুর ডাল", category: "ডাল", price: 130, unit: "কেজি", change: "down", changeAmount: 5, changePercent: 3.7, image: "🍲" },
-    { id: "3", slug: "soybean-oil", name: "সয়াবিন তেল", category: "তেল", price: 165, unit: "লিটার", change: "none", changeAmount: 0, changePercent: 0, image: "🍾" },
-    { id: "4", slug: "local-onion", name: "দেশি পেঁয়াজ", category: "সবজি", price: 90, unit: "কেজি", change: "up", changeAmount: 10, changePercent: 12.5, image: "🧅" },
-    { id: "5", slug: "potato", name: "আলু", category: "সবজি", price: 55, unit: "কেজি", change: "down", changeAmount: 3, changePercent: 5.1, image: "🥔" },
-    { id: "6", slug: "minikit-rice", name: "মিনিকেট চাল", category: "চাল", price: 68, unit: "কেজি", change: "none", changeAmount: 0, changePercent: 0, image: "🌾" },
+    { id: "1", slug: "swarnamachi-rice", name: "স্বর্ণমাছি চাল", category: "চাল", price: 65, unit: "কেজি", change: "up", changeAmount: 2, changePercent: 3.1, image: "🌾" },
+    { id: "2", slug: "minikit-rice", name: "মিনিকেট চাল", category: "চাল", price: 72, unit: "কেজি", change: "none", changeAmount: 0, changePercent: 0, image: "🌾" },
+    { id: "3", slug: "hilsha-fish", name: "ইলিশ মাছ", category: "মাছ", price: 1350, unit: "কেজি", change: "down", changeAmount: 50, changePercent: 3.5, image: "🐟" },
+    { id: "4", slug: "onion", name: "দেশি পেঁয়াজ", category: "সবজি", price: 95, unit: "কেজি", change: "up", changeAmount: 5, changePercent: 5.5, image: "🧅" },
+    { id: "5", slug: "potato", name: "আলু", category: "সবজি", price: 50, unit: "কেজি", change: "down", changeAmount: 2, changePercent: 3.8, image: "🥔" },
+    { id: "6", slug: "egg", name: "ফার্মের ডিম", category: "ডিম", price: 150, unit: "ডজন", change: "up", changeAmount: 6, changePercent: 4.1, image: "🥚" },
   ];
 }
